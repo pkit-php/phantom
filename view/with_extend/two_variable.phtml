@@ -1,0 +1,7 @@
+<? use Pkit\Phantom\View ?>
+<? View::extend("extend/two_variable", compact(["layer_one", "layer_two"])) ?>
+<? View::section("extend_two") ?>
+layer_to_extend=
+<?= $layer_to_extend ?>
+
+<? View::stop() ?>
