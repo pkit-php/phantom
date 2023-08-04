@@ -1,0 +1,19 @@
+{
+    "name": "pkit/phantom",
+    "type": "library",
+    "description": "A simple module to handle views",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Pkit\\Phantom\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kauan Augusto"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    }
+}
