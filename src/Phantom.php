@@ -6,31 +6,23 @@ use Pkit\View\Env as PhantomEnv;
 
 class Phantom extends PhantomEnv
 {
-    private string $file;
-    private array $vars = [];
     private readonly string $extends;
     private readonly array $extendsVars;
 
-    private static ?Phantom $instance = null;
+    private static ?self $instance = null;
+    private static array $instances = [];
 
-    private static ?string $lastSlot = null;
+    private static ?string $atualSlot = null;
     private static array $slots = [];
 
-    function __construct(string $file)
+    function __construct(private string $file, private array $vars)
     {
-        if (!file_exists($file)) {
+        if (!file_exists($this->file)) {
             throw new \Exception("file '$file' not exists", 500);
         }
-        $this->file = $file;
     }
 
-    public function assign(array $vars)
-    {
-        $this->vars = $vars;
-        return $this;
-    }
-
-    function renderFile()
+    private function renderFile()
     {
         ob_start();
 
@@ -40,47 +32,46 @@ class Phantom extends PhantomEnv
         return ob_get_clean();
     }
 
-    public function extendPhantom(string $Phantom, array $vars = [])
+    private function extendView(string $view, array $vars = [])
     {
-        $this->extends = $Phantom;
+        $this->extends = $view;
         $this->extendsVars = $vars;
     }
 
-    public function renderExtend()
+    private function renderExtend(string $path)
     {
-        return Phantom::render($this->extends, $this->extendsVars);
+        return self::renderByPath($path,$this->extends, $this->extendsVars);
     }
 
-    public function hasExtends()
+    private function hasExtends()
     {
         try {
             return !!$this->extends;
-        }
-        catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return false;
         }
     }
 
-    public static function extend(string $Phantom, array $vars = [])
+    public static function extend(string $view, array $vars = [])
     {
-        self::$instance->extendPhantom($Phantom, $vars);
+        self::$instance->extendView($view, $vars);
     }
 
     public static function section(string $id)
     {
-        Phantom::stop();
-        self::$lastSlot = $id;
+        self::stop();
+        self::$atualSlot = $id;
         ob_start();
     }
 
     public static function stop()
     {
-        if (self::$lastSlot) {
-            if (key_exists(self::$lastSlot, self::$slots) == false) {
-                self::$slots[self::$lastSlot] = "";
+        if (self::$atualSlot) {
+            if (key_exists(self::$atualSlot, self::$slots) == false) {
+                self::$slots[self::$atualSlot] = "";
             }
-            self::$slots[self::$lastSlot] .= ob_get_clean();
-            self::$lastSlot = null;
+            self::$slots[self::$atualSlot] .= ob_get_clean();
+            self::$atualSlot = null;
         }
     }
 
@@ -89,34 +80,29 @@ class Phantom extends PhantomEnv
         return self::$slots[$id] ?? "";
     }
 
-    private static function getPathFile(string $file)
+
+    public static function render(string $view, mixed $args = null)
     {
-        return self::getPath() . "/$file.phtml";
+        return self::renderByPath(self::getPath(),$view, $args);
     }
 
-    private static function reset()
-    {
-        self::$instance = null;
-        self::$lastSlot = null;
-        self::$slots = [];
-    }
-
-    public static function render(string $Phantom, mixed $args = null)
-    {
-        $file = self::getPathFile($Phantom);
+    public static function renderByPath(string $path,string $view, mixed $args = null) {
+        $file = "$path/$view.phtml";
 
         $lastInstance = self::$instance;
-        $localInstance = new Phantom($file);
+        $localInstance = new self($file, $args ?? []);
         self::$instance = $localInstance;
-        $content = $localInstance->assign($args ?? [])->renderFile();
-        Phantom::stop();
+        $content = $localInstance->renderFile();
+        self::stop();
 
         if ($localInstance->hasExtends()) {
             self::$instance = $lastInstance;
-            return $localInstance->renderExtend();
-        }
-        else {
-            self::reset();
+            return $localInstance->renderExtend($path);
+        } else {
+
+            self::$instance = null;
+            self::$atualSlot = null;
+            self::$slots = [];
             return $content;
         }
     }
