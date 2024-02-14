@@ -1,6 +1,6 @@
-<? use Pkit\Phantom\View ?>
-<? View::extend("extend/one") ?>
-<? View::section("extend_one") ?>
+<? use Pkit\Phantom ?>
+<? Phantom::extend("extend/one") ?>
+<? Phantom::section("extend_one") ?>
 layer_two
-<?= View::slot("extend_two") ?>
-<? View::stop() ?>
+<?= Phantom::slot("extend_two") ?>
+<? Phantom::stop() ?>

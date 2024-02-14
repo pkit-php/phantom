@@ -1,17 +1,17 @@
 <?php
 
-namespace Pkit\Phantom;
+namespace Pkit;
 
-use Pkit\Phantom\View\Env as ViewEnv;
+use Pkit\View\Env as PhantomEnv;
 
-class View extends ViewEnv
+class Phantom extends PhantomEnv
 {
     private string $file;
     private array $vars = [];
     private readonly string $extends;
     private readonly array $extendsVars;
 
-    private static ?View $instance = null;
+    private static ?Phantom $instance = null;
 
     private static ?string $lastSlot = null;
     private static array $slots = [];
@@ -40,15 +40,15 @@ class View extends ViewEnv
         return ob_get_clean();
     }
 
-    public function extendView(string $view, array $vars = [])
+    public function extendPhantom(string $Phantom, array $vars = [])
     {
-        $this->extends = $view;
+        $this->extends = $Phantom;
         $this->extendsVars = $vars;
     }
 
     public function renderExtend()
     {
-        return View::render($this->extends, $this->extendsVars);
+        return Phantom::render($this->extends, $this->extendsVars);
     }
 
     public function hasExtends()
@@ -61,14 +61,14 @@ class View extends ViewEnv
         }
     }
 
-    public static function extend(string $view, array $vars = [])
+    public static function extend(string $Phantom, array $vars = [])
     {
-        self::$instance->extendView($view, $vars);
+        self::$instance->extendPhantom($Phantom, $vars);
     }
 
     public static function section(string $id)
     {
-        View::stop();
+        Phantom::stop();
         self::$lastSlot = $id;
         ob_start();
     }
@@ -101,15 +101,15 @@ class View extends ViewEnv
         self::$slots = [];
     }
 
-    public static function render(string $view, mixed $args = null)
+    public static function render(string $Phantom, mixed $args = null)
     {
-        $file = self::getPathFile($view);
+        $file = self::getPathFile($Phantom);
 
         $lastInstance = self::$instance;
-        $localInstance = new View($file);
+        $localInstance = new Phantom($file);
         self::$instance = $localInstance;
         $content = $localInstance->assign($args ?? [])->renderFile();
-        View::stop();
+        Phantom::stop();
 
         if ($localInstance->hasExtends()) {
             self::$instance = $lastInstance;
