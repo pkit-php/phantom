@@ -1,0 +1,6 @@
+<? use Pkit\Phantom ?>
+<? Phantom::extend("extend/one") ?>
+<? Phantom::section("extend_one") ?>
+layer_two
+<?= Phantom::slot("extend_two") ?>
+<? Phantom::stop() ?>

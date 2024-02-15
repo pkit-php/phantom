@@ -1,0 +1,7 @@
+<? use Pkit\Phantom ?>
+<? Phantom::extend("extend/one_variable", compact(["layer_one"])) ?>
+<? Phantom::section("extend_one") ?>
+layer_to_extend=
+<?= $layer_to_extend ?>
+
+<? Phantom::stop() ?>
