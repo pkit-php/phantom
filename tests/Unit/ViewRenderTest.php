@@ -41,3 +41,11 @@ test('render with two extend with variables', function ($layer_one, $layer_two, 
 
    expect($rendered)->toEqual("layer_one=\n$layer_one\nlayer_two=\n$layer_two\nlayer_to_extend=\n$layer_to_extend\n");
 })->with([["1", 2, true], ["a", "b", false]]);
+
+/** outer view */
+
+test('render outer view', function () {
+   $rendered = Phantom::render("inner_z_view");
+
+   expect($rendered)->toEqual("test_z");
+});
